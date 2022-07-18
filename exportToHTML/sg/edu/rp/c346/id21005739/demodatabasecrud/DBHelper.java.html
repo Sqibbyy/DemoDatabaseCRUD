@@ -1,0 +1,96 @@
+<html>
+<head>
+<title>DBHelper.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #0033b3;}
+.s1 { color: #080808;}
+.s2 { color: #067d17;}
+.s3 { color: #1750eb;}
+.s4 { color: #8c8c8c; font-style: italic;}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+DBHelper.java</font>
+</center></td></tr></table>
+<pre><span class="s0">package </span><span class="s1">sg.edu.rp.c346.id21005739.demodatabasecrud;</span>
+
+<span class="s0">import </span><span class="s1">android.content.ContentValues;</span>
+<span class="s0">import </span><span class="s1">android.content.Context;</span>
+<span class="s0">import </span><span class="s1">android.database.Cursor;</span>
+<span class="s0">import </span><span class="s1">android.database.sqlite.SQLiteDatabase;</span>
+<span class="s0">import </span><span class="s1">android.database.sqlite.SQLiteOpenHelper;</span>
+<span class="s0">import </span><span class="s1">android.util.Log;</span>
+
+<span class="s0">import </span><span class="s1">java.util.ArrayList;</span>
+
+<span class="s0">public class </span><span class="s1">DBHelper </span><span class="s0">extends </span><span class="s1">SQLiteOpenHelper {</span>
+
+    <span class="s0">private static final </span><span class="s1">String DATABASE_NAME = </span><span class="s2">&quot;simplenotes.db&quot;</span><span class="s1">;</span>
+    <span class="s0">private static final int </span><span class="s1">DATABASE_VERSION = </span><span class="s3">1</span><span class="s1">;</span>
+    <span class="s0">private static final </span><span class="s1">String TABLE_NOTE = </span><span class="s2">&quot;note&quot;</span><span class="s1">;</span>
+    <span class="s0">private static final </span><span class="s1">String COLUMN_ID = </span><span class="s2">&quot;_id&quot;</span><span class="s1">;</span>
+    <span class="s0">private static final </span><span class="s1">String COLUMN_NOTE_CONTENT = </span><span class="s2">&quot;note_content&quot;</span><span class="s1">;</span>
+
+    <span class="s0">public </span><span class="s1">DBHelper(Context context) {</span>
+        <span class="s0">super</span><span class="s1">(context, DATABASE_NAME, </span><span class="s0">null</span><span class="s1">, DATABASE_VERSION);</span>
+    <span class="s1">}</span>
+
+    <span class="s1">@Override</span>
+    <span class="s0">public void </span><span class="s1">onCreate(SQLiteDatabase db) {</span>
+        <span class="s1">String createNoteTableSql = </span><span class="s2">&quot;CREATE TABLE &quot; </span><span class="s1">+ TABLE_NOTE + </span><span class="s2">&quot;(&quot;</span>
+                <span class="s1">+ COLUMN_ID + </span><span class="s2">&quot; INTEGER PRIMARY KEY AUTOINCREMENT,&quot;</span>
+                <span class="s1">+ COLUMN_NOTE_CONTENT + </span><span class="s2">&quot; TEXT ) &quot;</span><span class="s1">;</span>
+        <span class="s1">db.execSQL(createNoteTableSql);</span>
+        <span class="s1">Log.i(</span><span class="s2">&quot;info&quot;</span><span class="s1">, </span><span class="s2">&quot;created tables&quot;</span><span class="s1">);</span>
+
+
+    <span class="s1">}</span>
+
+    <span class="s1">@Override</span>
+    <span class="s0">public void </span><span class="s1">onUpgrade(SQLiteDatabase db, </span><span class="s0">int </span><span class="s1">oldVersion, </span><span class="s0">int </span><span class="s1">newVersion) {</span>
+        <span class="s1">db.execSQL(</span><span class="s2">&quot;DROP TABLE IF EXISTS &quot; </span><span class="s1">+ TABLE_NOTE);</span>
+        <span class="s1">onCreate(db);</span>
+    <span class="s1">}</span>
+
+    <span class="s0">public long </span><span class="s1">insertNote(String noteContent) {</span>
+        <span class="s1">SQLiteDatabase db = </span><span class="s0">this</span><span class="s1">.getWritableDatabase();</span>
+        <span class="s1">ContentValues values = </span><span class="s0">new </span><span class="s1">ContentValues();</span>
+        <span class="s1">values.put(COLUMN_NOTE_CONTENT, noteContent);</span>
+        <span class="s0">long </span><span class="s1">result = db.insert(TABLE_NOTE, </span><span class="s0">null</span><span class="s1">, values);</span>
+        <span class="s1">db.close();</span>
+        <span class="s1">Log.d(</span><span class="s2">&quot;SQL Insert&quot;</span><span class="s1">, </span><span class="s2">&quot;ID:&quot; </span><span class="s1">+ result); </span><span class="s4">//id returned, shouldn’t be -1</span>
+        <span class="s0">return </span><span class="s1">result;</span>
+    <span class="s1">}</span>
+
+    <span class="s0">public </span><span class="s1">ArrayList&lt;Note&gt; getAllNotes() {</span>
+        <span class="s1">ArrayList&lt;Note&gt; notes = </span><span class="s0">new </span><span class="s1">ArrayList&lt;Note&gt;();</span>
+
+        <span class="s1">SQLiteDatabase db = </span><span class="s0">this</span><span class="s1">.getReadableDatabase();</span>
+
+        <span class="s1">String[] columns = {COLUMN_ID, COLUMN_NOTE_CONTENT};</span>
+        <span class="s1">Cursor cursor = db.query(TABLE_NOTE, columns, </span><span class="s0">null</span><span class="s1">, </span><span class="s0">null</span><span class="s1">,</span>
+                <span class="s0">null</span><span class="s1">, </span><span class="s0">null</span><span class="s1">, </span><span class="s0">null</span><span class="s1">, </span><span class="s0">null</span><span class="s1">);</span>
+
+        <span class="s0">if </span><span class="s1">(cursor.moveToFirst()) {</span>
+            <span class="s0">do </span><span class="s1">{</span>
+                <span class="s0">int </span><span class="s1">id = cursor.getInt(</span><span class="s3">0</span><span class="s1">);</span>
+                <span class="s1">String noteContent = cursor.getString(</span><span class="s3">1</span><span class="s1">);</span>
+                <span class="s1">Note note = </span><span class="s0">new </span><span class="s1">Note(id, noteContent);</span>
+                <span class="s1">notes.add(note);</span>
+            <span class="s1">} </span><span class="s0">while </span><span class="s1">(cursor.moveToNext());</span>
+        <span class="s1">}</span>
+        <span class="s1">cursor.close();</span>
+        <span class="s1">db.close();</span>
+        <span class="s0">return </span><span class="s1">notes;</span>
+    <span class="s1">}</span>
+
+
+<span class="s1">}</span>
+
+</pre>
+</body>
+</html>
